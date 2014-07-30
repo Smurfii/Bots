@@ -1,4 +1,3 @@
-
 #!/usr/bin/perl -w
 use strict;
 use warnings;
@@ -20,7 +19,7 @@ my $krcname = 'Bot de DiiCTATURe';
 my $username = 'Facho';
 my $password = 'hk4yia;o47u';
 
-my @channels = ('#alphiste', '#bde');
+my @channels = ('#alphiste', '#facho', '#Samy');
 
 # CONNEXION
 my ($irc) = POE::Component::IRC->spawn();
@@ -59,19 +58,13 @@ my @ops = (
 	"Benef",
 	"Smurf",
 	"O-P",
-	"Chuck",
-	"Loopy",
 	"Inco",
 	"Samy",
-	"Cold",
-	"Foufoune",
-	"frtoms",
 );
 
 my @mots_interdits = (
 	"nazi",
 	"nsdap",
-	"connard",
 );
 
 sub bot_start {
@@ -83,7 +76,7 @@ sub bot_start {
 			Ircname  => $krcname,
 			Server   => $serveur,
 			Port     => $port,
-		}
+		},
 	);
 }
 
@@ -165,23 +158,24 @@ sub on_speak {
 	my @jouer;
 
 
-# Gestion des kicks.
-if ("@mots_interdits" =~ /$msg/i) {
-	print "<$user> $msg\n";
-	if ("@ops" !~ /$user/i) {
-		$irc->delay([privmsg => $chan => "Surveille ton langage !"], 1);
-		$irc->delay([privmsg => "chanserv" => "KICK $chan $user Toute l'Allemagne n'Ã©tait pas nazie..."], 1);
+	# Gestion des kicks.
+	if ("@mots_interdits" =~ /$msg/i) {
+		print "<$user> $msg\n";
+		if ("@ops" !~ /$user/i) {
+			$irc->delay([privmsg => $chan => "Surveille ton langage !"], 1);
+			$irc->delay([privmsg => "chanserv" => "KICK $chan $user Toute l'Allemagne n'Ã©tait pas nazie..."], 1);
+		}
 	}
-}
 
-if ($msg =~ m/^$precmd/) {
-	my $commande = ( $msg =~ m/^$precmd([^ ]*)/ )[0]; 
-	my @params = grep {!/^\s*$/} split(/\s+/, substr($msg, length($precmd.$commande)));
+	if ($msg =~ m/^$precmd/) {
+		my $commande = ( $msg =~ m/^$precmd([^ ]*)/ )[0]; 
+		my @params = grep {!/^\s*$/} split(/\s+/, substr($msg, length($precmd.$commande)));
 
-	foreach (keys(%commandes)) {
-		if ($commande eq $_) {
-			$commandes{$_}->($chan,$user,$kernel,$irc,@params);
-			last;
+		foreach (keys(%commandes)) {
+			if ($commande eq $_) {
+				$commandes{$_}->($chan,$user,$kernel,$irc,@params);
+				last;
+			}
 		}
 	}
 }
